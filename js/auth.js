@@ -123,3 +123,6 @@ function logout() {
         window.location.href = 'index.html';
     });
 }
+
+// Make available globally
+window.logout = logout;

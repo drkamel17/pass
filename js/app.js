@@ -1,13 +1,19 @@
 // Dashboard functionality
 
-let passwords = [];
+let passwordsList = [];
 let editingId = null;
 const modal = document.getElementById('modal');
 
 // Initialize dashboard
 async function initDashboard() {
+    // Debug: check what's in localStorage
+    console.log('=== Dashboard Init ===');
+    console.log('user_id:', localStorage.getItem('user_id'));
+    console.log('email:', localStorage.getItem('email'));
+    console.log('masterKey:', localStorage.getItem('masterKey') ? 'SET' : 'NULL');
+    
     // Set user email
-    const email = localStorage.getItem('email') || 'Utilisateur';
+    const email = localStorage.getItem('email') || localStorage.getItem('user_id') || 'Utilisateur';
     document.getElementById('userEmail').textContent = email;
     
     // Load passwords
@@ -16,10 +22,14 @@ async function initDashboard() {
 
 // Load passwords from Supabase
 async function loadPasswords() {
+    const userId = localStorage.getItem('user_id');
+    console.log('Loading passwords for user_id:', userId);
+    
     try {
-        passwords = await passwords.getAll();
+        passwordsList = await passwords.getAll();
+        console.log('Loaded passwords:', passwordsList.length);
         renderPasswords();
-        document.getElementById('passwordCount').textContent = passwords.length;
+        document.getElementById('passwordCount').textContent = passwordsList.length;
     } catch (error) {
         console.error('Error loading passwords:', error);
         showToast('Erreur lors du chargement des mots de passe');
@@ -31,7 +41,7 @@ function renderPasswords() {
     const container = document.getElementById('passwordsList');
     const emptyState = document.getElementById('emptyState');
     
-    if (passwords.length === 0) {
+    if (passwordsList.length === 0) {
         container.innerHTML = '';
         emptyState.classList.remove('hidden');
         return;
@@ -39,7 +49,7 @@ function renderPasswords() {
     
     emptyState.classList.add('hidden');
     
-    container.innerHTML = passwords.map(p => `
+    container.innerHTML = passwordsList.map(p => `
         <div class="password-card" data-id="${p.id}">
             <div class="password-card-header">
                 <div class="password-icon">${escapeHtml(p.site_name[0].toUpperCase())}</div>
@@ -166,7 +176,7 @@ document.getElementById('passwordForm').addEventListener('submit', async (e) => 
 
 // Edit password
 async function editPassword(id) {
-    const entry = passwords.find(p => p.id === id);
+    const entry = passwordsList.find(p => p.id === id);
     if (!entry) return;
     
     const masterKey = localStorage.getItem('masterKey');
@@ -196,7 +206,7 @@ async function editPassword(id) {
 
 // Copy password
 async function copyPassword(id) {
-    const entry = passwords.find(p => p.id === id);
+    const entry = passwordsList.find(p => p.id === id);
     if (!entry) return;
     
     const masterKey = localStorage.getItem('masterKey');
@@ -266,4 +276,6 @@ window.generatePassword = generatePassword;
 window.editPassword = editPassword;
 window.copyPassword = copyPassword;
 window.deletePassword = deletePassword;
-window.logout = logout;
+window.initDashboard = initDashboard;
+
+console.log('App.js loaded successfully');

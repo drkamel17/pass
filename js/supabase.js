@@ -69,6 +69,13 @@ const auth = {
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('refresh_token', data.refresh_token);
         localStorage.setItem('user_id', data.user.id);
+        localStorage.setItem('email', email);
+        
+        console.log('Login successful, user_id:', data.user.id);
+        
+        // Also fetch full user info to confirm
+        const userInfo = await auth.getUser();
+        console.log('Full user info:', userInfo);
         
         return data;
     },
@@ -130,9 +137,12 @@ const auth = {
 const passwords = {
     async getAll() {
         const userId = localStorage.getItem('user_id');
+        console.log('passwords.getAll - userId:', userId);
         if (!userId) return [];
         
-        return await supabaseFetch(`passwords?user_id=eq.${userId}&order=created_at.desc`);
+        const result = await supabaseFetch(`passwords?user_id=eq.${userId}&order=created_at.desc`);
+        console.log('passwords.getAll - result:', result);
+        return result;
     },
     
     async create(data) {

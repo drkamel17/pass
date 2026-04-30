@@ -142,8 +142,8 @@ document.getElementById('passwordForm').addEventListener('submit', async (e) => 
         return;
     }
     
-    if (!siteName || !username || !password) {
-        showToast('Veuillez remplir tous les champs');
+    if (!siteName || !password) {
+        showToast('Veuillez remplir le nom du site et le mot de passe');
         return;
     }
     
@@ -153,8 +153,8 @@ document.getElementById('passwordForm').addEventListener('submit', async (e) => 
         
         const data = {
             site_name: siteName,
-            site_url: siteUrl,
-            username: username,
+            site_url: siteUrl || '',
+            username: username || '',
             encrypted_password: encryptedPassword
         };
         

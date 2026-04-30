@@ -4,6 +4,14 @@ let passwordsList = [];
 let editingId = null;
 const modal = document.getElementById('modal');
 
+// Inactivity logout configuration
+const INACTIVITY_TIMEOUT = 20; // seconds
+const WARNING_TIME = 15; // seconds before logout to show warning
+
+let inactivityTimer = null;
+let warningTimer = null;
+let showWarningCallback = null;
+
 // Initialize dashboard
 async function initDashboard() {
     // Debug: check what's in localStorage
@@ -18,6 +26,119 @@ async function initDashboard() {
     
     // Load passwords
     await loadPasswords();
+    
+    // Setup inactivity detection
+    setupInactivityListeners();
+    
+    // Start inactivity timer
+    startInactivityTimer();
+}
+
+// Inactivity timer functions
+function startInactivityTimer() {
+    // Clear any existing timers
+    clearTimers();
+    
+    console.log('Inactivity timer started - will logout after', INACTIVITY_TIMEOUT, 'seconds');
+    
+    // Set warning timer
+    warningTimer = setTimeout(() => {
+        console.log('Warning: logout in', WARNING_TIME, 'seconds');
+        showInactivityWarning();
+    }, (INACTIVITY_TIMEOUT - WARNING_TIME) * 1000);
+    
+    // Set logout timer
+    inactivityTimer = setTimeout(() => {
+        console.log('Inactivity timeout - logging out');
+        performLogout();
+    }, INACTIVITY_TIMEOUT * 1000);
+}
+
+function clearTimers() {
+    if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = null;
+    }
+    if (warningTimer) {
+        clearTimeout(warningTimer);
+        warningTimer = null;
+    }
+    // Hide warning if shown
+    const warningEl = document.getElementById('inactivityWarning');
+    if (warningEl) {
+        warningEl.remove();
+    }
+}
+
+function resetInactivityTimer() {
+    if (localStorage.getItem('user_id')) {
+        console.log('Activity detected - resetting timer');
+        startInactivityTimer();
+    }
+}
+
+function showInactivityWarning() {
+    // Remove existing warning if any
+    const existing = document.getElementById('inactivityWarning');
+    if (existing) existing.remove();
+    
+    // Create warning element
+    const warning = document.createElement('div');
+    warning.id = 'inactivityWarning';
+    warning.className = 'inactivity-warning';
+    warning.innerHTML = `
+        <div class="inactivity-warning-content">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <div>
+                <strong>Session inactive</strong>
+                <p>Déconnexion dans ${WARNING_TIME} secondes. Cliquez pour rester connecté.</p>
+            </div>
+        </div>
+    `;
+    
+    warning.style.cssText = `
+        position: fixed;
+        top: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 12px;
+        padding: 15px 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        max-width: 90%;
+        animation: slideDown 0.3s ease;
+    `;
+    
+    document.body.appendChild(warning);
+    
+    // Add click to reset
+    warning.addEventListener('click', resetInactivityTimer);
+}
+
+function performLogout() {
+    localStorage.clear();
+    showToast('Session expirée par inactivity');
+    window.location.href = 'index.html';
+}
+
+// Add event listeners for user activity
+function setupInactivityListeners() {
+    const events = ['mousedown', 'mousemove', 'keydown', 'touchstart', 'scroll', 'click'];
+    
+    events.forEach(event => {
+        document.addEventListener(event, resetInactivityTimer, { passive: true });
+    });
+    
+    console.log('Inactivity listeners set up');
 }
 
 // Load passwords from Supabase
@@ -113,10 +234,9 @@ function closeModal() {
     editingId = null;
 }
 
-// Toggle password visibility
+// Toggle password visibility (using the same function from auth.js)
 function togglePassword() {
-    const input = document.getElementById('password');
-    input.type = input.type === 'password' ? 'text' : 'password';
+    togglePasswordVisibility('password');
 }
 
 // Generate random password

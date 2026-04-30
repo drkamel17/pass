@@ -32,15 +32,39 @@
                 </div>
                 <div class="form-group">
                     <label for="password">Mot de passe</label>
-                    <input type="password" id="password" required placeholder="Mot de passe" minlength="6">
+                    <div class="password-input">
+                        <input type="password" id="password" required placeholder="Mot de passe" minlength="6">
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('password')">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="confirmPassword">Confirmer le mot de passe</label>
-                    <input type="password" id="confirmPassword" required placeholder="Confirmer le mot de passe">
+                    <div class="password-input">
+                        <input type="password" id="confirmPassword" required placeholder="Confirmer le mot de passe">
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('confirmPassword')">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="masterPassword">Mot de passe maître</label>
-                    <input type="password" id="masterPassword" required placeholder="Mot de passe maître" minlength="8">
+                    <div class="password-input">
+                        <input type="password" id="masterPassword" required placeholder="Mot de passe maître" minlength="8">
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('masterPassword')">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
                     <small>Minimum 8 caractères</small>
                 </div>
                 <button type="submit" class="btn-primary" id="submitBtn">Créer un compte</button>

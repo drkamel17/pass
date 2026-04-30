@@ -124,5 +124,98 @@ function logout() {
     });
 }
 
+// Forgot password form handler
+document.getElementById('forgotPasswordForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById('resetEmail').value;
+    const submitBtn = document.getElementById('resetSubmitBtn');
+    
+    if (!email) {
+        showResetError('Veuillez entrer votre email');
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi...';
+    hideResetError();
+    hideResetSuccess();
+    
+    try {
+        await auth.recoverPassword(email);
+        showResetSuccess('Si ce compte existe, un email de réinitialisation a été envoyé.');
+        document.getElementById('forgotPasswordForm').reset();
+    } catch (error) {
+        console.error('Password reset error:', error);
+        showResetError(error.message || 'Erreur lors de la réinitialisation');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Envoyer le lien';
+    }
+});
+
+// Helper functions for reset form
+function showResetError(message) {
+    const errorDiv = document.getElementById('resetError');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+}
+
+function hideResetError() {
+    const errorDiv = document.getElementById('resetError');
+    if (errorDiv) {
+        errorDiv.classList.add('hidden');
+    }
+}
+
+function showResetSuccess(message) {
+    const successDiv = document.getElementById('resetSuccess');
+    if (successDiv) {
+        successDiv.textContent = message;
+        successDiv.classList.remove('hidden');
+    }
+}
+
+function hideResetSuccess() {
+    const successDiv = document.getElementById('resetSuccess');
+    if (successDiv) {
+        successDiv.classList.add('hidden');
+    }
+}
+
+// Switch between login and forgot password forms
+function showForgotPassword() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('forgotPasswordSection').classList.remove('hidden');
+}
+
+function showLoginForm() {
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('forgotPasswordSection').classList.add('hidden');
+    hideResetError();
+    hideResetSuccess();
+}
+
 // Make available globally
 window.logout = logout;
+window.showForgotPassword = showForgotPassword;
+window.showLoginForm = showLoginForm;
+
+// Toggle password visibility
+function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.parentElement.querySelector('.toggle-password');
+    const svg = button.querySelector('svg');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        svg.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.72a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    } else {
+        input.type = 'password';
+        svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    }
+}
+
+window.togglePasswordVisibility = togglePasswordVisibility;

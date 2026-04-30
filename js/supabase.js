@@ -99,6 +99,30 @@ const auth = {
         return data;
     },
     
+    async recoverPassword(email) {
+        // Get the base URL for redirect
+        const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+        
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                email,
+                redirect_to: baseUrl + '/reset-password.html'
+            })
+        });
+        
+        console.log('Password reset requested for:', email);
+        console.log('Redirect URL will be:', baseUrl + '/reset-password.html');
+        
+        // Supabase returns success even if email doesn't exist (security)
+        // to prevent email enumeration
+        return { success: true, message: 'Si ce compte existe, un email de réinitialisation a été envoyé.' };
+    },
+    
     async signOut() {
         const response = await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
             method: 'POST',

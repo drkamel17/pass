@@ -23,6 +23,7 @@
             </div>
 
             <div id="error" class="alert error hidden"></div>
+            <div id="successMessage" class="alert success hidden"></div>
 
             <form id="loginForm">
                 <div class="form-group">
@@ -31,17 +32,49 @@
                 </div>
                 <div class="form-group">
                     <label for="password">Mot de passe</label>
-                    <input type="password" id="password" required placeholder="Mot de passe">
+                    <div class="password-input">
+                        <input type="password" id="password" required placeholder="Mot de passe">
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('password')">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="masterPassword">Mot de passe maître</label>
-                    <input type="password" id="masterPassword" required placeholder="Mot de passe maître">
+                    <div class="password-input">
+                        <input type="password" id="masterPassword" required placeholder="Mot de passe maître">
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('masterPassword')">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
                     <small>Ce mot de passe chiffre vos données localement</small>
                 </div>
                 <button type="submit" class="btn-primary" id="submitBtn">Se connecter</button>
             </form>
 
+            <div id="forgotPasswordSection" class="hidden">
+                <p class="text-center mb-3">Entrez votre email pour recevoir un lien de réinitialisation</p>
+                <form id="forgotPasswordForm">
+                    <div class="form-group">
+                        <label for="resetEmail">Email</label>
+                        <input type="email" id="resetEmail" required placeholder="votre@email.com">
+                    </div>
+                    <div id="resetError" class="alert error hidden"></div>
+                    <div id="resetSuccess" class="alert success hidden"></div>
+                    <button type="submit" class="btn-primary" id="resetSubmitBtn">Envoyer le lien</button>
+                    <button type="button" class="btn-link" onclick="showLoginForm()">Retour à la connexion</button>
+                </form>
+            </div>
+
             <p class="auth-switch">
+                <a href="#" onclick="showForgotPassword()">Mot de passe oublié?</a>
+                <span class="divider">|</span>
                 Pas de compte? <a href="signup.html">Créer un compte</a>
             </p>
         </div>
@@ -51,9 +84,32 @@
     <script src="js/crypto.js"></script>
     <script src="js/auth.js"></script>
     <script>
+        // Check if URL has password reset token - redirect to reset-password.html
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const type = hashParams.get('type');
+        const accessToken = hashParams.get('access_token');
+        
+        if (type === 'recovery' && accessToken) {
+            console.log('Password reset token detected, redirecting...');
+            window.location.href = 'reset-password.html' + window.location.hash;
+            // Stop execution
+            throw new Error('Redirecting to password reset page');
+        }
+        
         // Check if already logged in
         if (localStorage.getItem('user_id')) {
             window.location.href = 'dashboard.html';
+        }
+        
+        // Check for password reset success message
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('message') === 'password_updated') {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = '✓ Mot de passe mis à jour! Veuillez vous connecter avec votre nouveau mot de passe.';
+            successDiv.classList.remove('hidden');
+            
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
     </script>
 </body>

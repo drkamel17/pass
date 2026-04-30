@@ -3,6 +3,17 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    touch-action: manipulation;
+}
+
+body {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 :root {
@@ -557,5 +568,184 @@ body {
     
     .passwords-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* Mobile & Android Optimizations */
+@media (max-width: 480px) {
+    /* Auth pages */
+    .auth-card {
+        padding: 25px 20px;
+        margin: 15px;
+        border-radius: 16px;
+    }
+    
+    .logo svg {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .logo h1 {
+        font-size: 24px;
+    }
+    
+    .form-group input {
+        padding: 14px 12px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .btn-primary {
+        padding: 16px;
+        font-size: 16px;
+    }
+    
+    /* Navbar */
+    .navbar {
+        padding: 12px 15px;
+    }
+    
+    .nav-brand span {
+        font-size: 18px;
+    }
+    
+    .nav-user span {
+        display: none; /* Hide email on small screens */
+    }
+    
+    /* Sidebar */
+    .sidebar {
+        padding: 15px;
+        gap: 12px;
+    }
+    
+    .btn-add {
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    .search-box {
+        padding: 10px 12px;
+    }
+    
+    .stat-card h3 {
+        font-size: 24px;
+    }
+    
+    /* Main content */
+    .main-content {
+        padding: 15px;
+    }
+    
+    .main-content h2 {
+        font-size: 20px;
+    }
+    
+    /* Password cards */
+    .password-card {
+        padding: 15px;
+    }
+    
+    .password-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .password-card-info h4 {
+        font-size: 14px;
+    }
+    
+    .password-card-actions {
+        gap: 6px;
+    }
+    
+    .btn-action {
+        padding: 10px;
+    }
+    
+    /* Modal */
+    .modal-content {
+        margin: 10px;
+        border-radius: 16px;
+    }
+    
+    .modal-header {
+        padding: 15px;
+    }
+    
+    .modal-header h3 {
+        font-size: 18px;
+    }
+    
+    #passwordForm {
+        padding: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        font-size: 14px;
+    }
+    
+    .form-group input {
+        padding: 12px;
+        font-size: 16px;
+    }
+    
+    .modal-actions {
+        gap: 10px;
+    }
+    
+    .btn-secondary, .btn-primary {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    
+    /* Toast */
+    .toast {
+        left: 15px;
+        right: 15px;
+        bottom: 20px;
+        text-align: center;
+    }
+}
+
+/* Touch improvements */
+@media (hover: none) and (pointer: coarse) {
+    .btn-action,
+    .btn-add,
+    .btn-primary,
+    .btn-secondary,
+    .btn-generate,
+    .toggle-password {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    input {
+        font-size: 16px !important;
+    }
+    
+    /* Prevent text selection on buttons */
+    .btn-action,
+    .btn-add {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+/* PWA support */
+@media (display-mode: standalone) {
+    .navbar {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .container {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    body {
+        padding-top: env(safe-area-inset-top);
     }
 }

@@ -5,8 +5,16 @@ const SUPABASE_URL = 'https://jkianwwvbseovjyzocdt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpraWFud3d2YnNlb3ZqeXpvY2R0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTE0MzQsImV4cCI6MjA5MzAyNzQzNH0.oWeAP61hMJjE7aZ17NOW7Txl1T9dQOmiSljLZv8CYmE';
 
 export default async function handler(req, res) {
+    console.log('API called, method:', req.method);
+    
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Méthode non autorisée' });
+    }
+
+    // Vérifier si la clé API Resend est configurée
+    if (!RESEND_API_KEY) {
+        console.error('RESEND_API_KEY not configured');
+        return res.status(500).json({ error: 'Configuration email manquante' });
     }
 
     try {
@@ -15,6 +23,8 @@ export default async function handler(req, res) {
         if (!email || !filename || !content) {
             return res.status(400).json({ error: 'Paramètres manquants' });
         }
+        
+        console.log('Sending email to:', email, 'format:', format);
 
         // Envoyer l'email avec Resend
         const response = await fetch('https://api.resend.com/emails', {
@@ -27,48 +37,16 @@ export default async function handler(req, res) {
                 from: 'SecurePass Export <onboarding@resend.dev>',
                 to: [email],
                 subject: `Export de vos mots de passe - Format ${format.toUpperCase()}`,
-                html: `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="utf-8">
-                    </head>
-                    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-                        <h2 style="color: #667eea;">Export de vos mots de passe</h2>
-                        <p>Vous avez demandé un export de vos mots de passe au format <strong>${format.toUpperCase()}</strong>.</p>
-                        
-                        <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                            <strong>⚠️ Important :</strong> Ce fichier contient vos mots de passe en clair. 
-                            Assurez-vous de le supprimer après utilisation.
-                        </div>
-                        
-                        <p style="color: #666; font-size: 14px;">
-                            Date d'export : ${new Date().toLocaleString('fr-FR', { 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })}
-                        </p>
-                        
-                        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                        
-                        <p style="color: #999; font-size: 12px;">
-                            Cet email a été envoyé par SecurePass. Si vous n'avez pas demandé cet export, 
-                            contactez immédiatement le support.
-                        </p>
-                    </body>
-                    </html>
-                `,
+                html: `<!DOCTYPE html><html><body><h2>Export de vos mots de passe</h2><p>Format: ${format.toUpperCase()}</p><p>Date: ${new Date().toLocaleString()}</p></body></html>`,
                 attachments: [{
                     filename: filename,
-                    content: content // Already base64 encoded
+                    content: content
                 }]
             })
         });
 
         const data = await response.json();
+        console.log('Resend response:', data);
 
         if (!response.ok) {
             console.error('Resend error:', data);

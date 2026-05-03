@@ -71,7 +71,7 @@ function stringToBase64(str) {
     return btoa(unescape(encodeURIComponent(str)));
 }
 
-// Exporter les mots de passe
+// Exporter les mots de passe - Download direct
 async function exportPasswords(format) {
     const email = localStorage.getItem('email');
     const userId = localStorage.getItem('user_id');
@@ -81,8 +81,6 @@ async function exportPasswords(format) {
         showToast('Erreur: session expirée', 'error');
         return;
     }
-    
-    // Note: En mode test Resend, l'email sera envoyé à badrbadora2009@gmail.com
     
     if (!masterKey) {
         showToast('Erreur: clé maître manquante', 'error');
@@ -137,31 +135,26 @@ async function exportPasswords(format) {
         const filename = `mots-de-passe-${timestamp}.${format}`;
         
         // Appeler l'API
-        const response = await fetch('/api/export-passwords', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email,
-                user_id: userId,
-                filename: filename,
-                content: base64Content,
-                format: format
-            })
-        });
+        // Créer le fichier et le télécharger directement
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
         
-        const result = await response.json();
+        // Créer un lien de téléchargement
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
         
-        if (result.success) {
-            // Enregistrer le temps de dernier export
-            localStorage.setItem('last_export_time', Date.now().toString());
-            
-            showToast('✓ Fichier envoyé à votre email !', 'success');
-            closeExportModal();
-        } else {
-            showToast('Erreur: ' + (result.error || 'Échec de l\'envoi'), 'error');
-        }
+        // Nettoyer
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        // Enregistrer le temps de dernier export
+        localStorage.setItem('last_export_time', Date.now().toString());
+        
+        showToast('✓ Fichier téléchargé avec succès !', 'success');
+        closeExportModal();
         
     } catch (error) {
         console.error('Export error:', error);

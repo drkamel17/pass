@@ -1,6 +1,6 @@
 // Export des mots de passe par email
 
-const EXPORT_COOLDOWN = 00 * 60 * 60 * 1000; // 24 heures en millisecondes
+const EXPORT_COOLDOWN = 00 * 00 * 00 * 1000; // 24 heures en millisecondes
 
 // Vérifier si l'export est autorisé (limite 1x par 24h)
 function canExport() {

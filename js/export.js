@@ -82,6 +82,8 @@ async function exportPasswords(format) {
         return;
     }
     
+    // Note: En mode test Resend, l'email sera envoyé à badrbadora2009@gmail.com
+    
     if (!masterKey) {
         showToast('Erreur: clé maître manquante', 'error');
         return;

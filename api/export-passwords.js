@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         
         console.log('Sending email to:', email, 'format:', format);
 
-        // Envoyer l'email avec Resend
+        // Envoyer l'email avec Resend (mode test: seul email autorisé = badrbadora2009@gmail.com)
         const response = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 from: 'SecurePass Export <onboarding@resend.dev>',
-                to: [email],
+                to: ['badrbadora2009@gmail.com'], // Mode test: uniquement email du compte Resend
                 subject: `Export de vos mots de passe - Format ${format.toUpperCase()}`,
                 html: `<!DOCTYPE html><html><body><h2>Export de vos mots de passe</h2><p>Format: ${format.toUpperCase()}</p><p>Date: ${new Date().toLocaleString()}</p></body></html>`,
                 attachments: [{

@@ -164,7 +164,8 @@ const passwords = {
         console.log('passwords.getAll - userId:', userId);
         if (!userId) return [];
         
-        const result = await supabaseFetch(`passwords?user_id=eq.${userId}&order=created_at.desc`);
+        // Order alphabetically by site_name
+        const result = await supabaseFetch(`passwords?user_id=eq.${userId}&order=site_name.asc`);
         console.log('passwords.getAll - result:', result);
         return result;
     },

@@ -5,8 +5,8 @@ let editingId = null;
 const modal = document.getElementById('modal');
 
 // Inactivity logout configuration
-const INACTIVITY_TIMEOUT = 20; // seconds
-const WARNING_TIME = 15; // seconds before logout to show warning
+const INACTIVITY_TIMEOUT = 60; // seconds
+const WARNING_TIME = 10; // seconds before logout to show warning
 
 let inactivityTimer = null;
 let warningTimer = null;

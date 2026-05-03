@@ -856,3 +856,136 @@ body {
     font-size: 13px;
     opacity: 0.9;
 }
+
+/* Export functionality */
+.btn-export {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 16px;
+    margin-top: 12px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-export:active {
+    transform: translateY(0);
+}
+
+.export-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+}
+
+.export-warning svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.export-warning strong {
+    display: block;
+    color: #856404;
+    margin-bottom: 4px;
+}
+
+.export-warning p {
+    margin: 0;
+    font-size: 13px;
+    color: #856404;
+}
+
+.export-formats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.format-option {
+    cursor: pointer;
+}
+
+.format-option input {
+    display: none;
+}
+
+.format-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    background: var(--light);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    transition: all 0.2s ease;
+}
+
+.format-option input:checked + .format-card {
+    border-color: var(--primary);
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.format-card svg {
+    color: var(--primary);
+}
+
+.format-card span {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.format-card small {
+    font-size: 11px;
+    color: var(--gray);
+}
+
+.export-confirm {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: var(--radius);
+}
+
+.export-confirm input {
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+.export-confirm label {
+    font-size: 13px;
+    color: var(--dark);
+    cursor: pointer;
+}
+
+.export-status {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--gray);
+}
+
+.modal .btn-primary svg {
+    margin-right: 8px;
+}

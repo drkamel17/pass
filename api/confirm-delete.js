@@ -7,6 +7,11 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
 export default async function handler(req, res) {
     console.log('API: confirm-delete called');
+    console.log('Service key configured:', !!SUPABASE_SERVICE_KEY);
+        
+        if (!SUPABASE_SERVICE_KEY) {
+            console.error('ERREUR: SUPABASE_SERVICE_KEY non défini dans les variables environment');
+        }
     
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Méthode non autorisée' });
@@ -95,25 +100,36 @@ console.log('Mots de passe supprimés:', deletePasswordsResponse.ok);
         // 4. Supprimer l'utilisateur via l'API Admin
         console.log('Tentative de suppression du compte utilisateur:', userId);
         
-        // Essayer avec le service role key
-        const deleteUserResponse = await fetch(
-            `${SUPABASE_URL}/auth/v1/admin/users/${userId}`,
-            {
-                method: 'DELETE',
-                headers: {
-                    'apikey': SUPABASE_SERVICE_KEY,
-                    'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
+        let userDeleted = false;
         
-        console.log('Résultat suppression utilisateur:', deleteUserResponse.status);
+        // Essayer avec le service role key seulement si disponible
+        if (SUPABASE_SERVICE_KEY) {
+            const deleteUserResponse = await fetch(
+                `${SUPABASE_URL}/auth/v1/admin/users/${userId}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_SERVICE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            
+            console.log('Résultat suppression utilisateur:', deleteUserResponse.status);
+            userDeleted = deleteUserResponse.ok;
+        } else {
+            console.log('SUPABASE_SERVICE_KEY non configuré - suppression du compte utilisateur ignorée');
+        }
 
         // Rediriger vers la page de connexion
-        // Note: Les mots de passe sont supprimés. Le compte Supabase peut nécessiter suppression manuelle
-        console.log('Suppression terminée avec succès');
-        return res.redirect('/index.html?message=mots_de_passe_supprimes');
+        if (userDeleted) {
+            console.log('Suppression complète réussie');
+            return res.redirect('/index.html?message=compte_supprime');
+        } else {
+            console.log('Suppression mots de passe réussie, compte utilisateur non supprimé (clé service manquante ou invalide)');
+            return res.redirect('/index.html?message=mots_de_passe_supprimes');
+        }
 
     } catch (error) {
         console.error('Error in confirm-delete:', error);

@@ -450,7 +450,15 @@ async function requestAccountDeletion() {
             })
         });
         
-        const result = await response.json();
+        // Handle non-JSON responses
+        const text = await response.text();
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error('Non-JSON response:', text);
+            result = { error: 'Erreur serveur: ' + response.status };
+        }
         
         if (result.success) {
             closeDeleteAccountModal();

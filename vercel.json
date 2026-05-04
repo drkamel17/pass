@@ -1,6 +1,10 @@
 {
     "rewrites": [
-        { "source": "/api/(.*)", "destination": "/api/$1" },
+        { "source": "/api/export-passwords", "destination": "/api/export-passwords.js" },
+        { "source": "/api/request-delete", "destination": "/api/request-delete.js" },
+        { "source": "/api/confirm-delete", "destination": "/api/confirm-delete.js" },
+        { "source": "/api/cancel-delete", "destination": "/api/cancel-delete.js" },
+        { "source": "/api/(.*)", "destination": "/index.html" },
         { "source": "/(.*)", "destination": "/index.html" }
     ]
 }

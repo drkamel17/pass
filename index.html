@@ -111,6 +111,16 @@
             // Clean URL
             window.history.replaceState({}, document.title, window.location.pathname);
         }
+        
+        // Check for account deletion message
+        if (urlParams.get('message') === 'mots_de_passe_supprimes') {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.innerHTML = '✓ Vos mots de passe ont été supprimés!<br><small style="display:block;margin-top:10px;">Pour supprimer définitivement votre compte Supabase, allez dans Supabase Dashboard → Authentication → Users et supprimez votre compte manuellement.</small>';
+            successDiv.classList.remove('hidden');
+            
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
     </script>
 </body>
 </html>

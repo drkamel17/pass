@@ -73,7 +73,7 @@ export default async function handler(req, res) {
             }
         );
 
-        console.log('Mots de passe supprimés:', deletePasswordsResponse.ok);
+console.log('Mots de passe supprimés:', deletePasswordsResponse.ok);
 
         // 3. Supprimer les demandes de suppression
         await fetch(
@@ -87,9 +87,10 @@ export default async function handler(req, res) {
             }
         );
 
-        // 4. Supprimer l'utilisateur de Supabase Auth (avec service role key)
-        console.log('Tentative de suppression de l\'utilisateur avec ID:', userId);
+        // 4. Supprimer l'utilisateur via l'API Admin
+        console.log('Tentative de suppression du compte utilisateur:', userId);
         
+        // Essayer avec le service role key
         const deleteUserResponse = await fetch(
             `${SUPABASE_URL}/auth/v1/admin/users/${userId}`,
             {
@@ -101,12 +102,12 @@ export default async function handler(req, res) {
                 }
             }
         );
+        
+        console.log('Résultat suppression utilisateur:', deleteUserResponse.status);
 
-        const deleteUserResult = await deleteUserResponse.text();
-        console.log('Utilisateur supprimé:', deleteUserResponse.status, deleteUserResult);
-
-        // Rediriger vers la page de connexion avec message de succès
-        return res.redirect('/index.html?message=compte_supprime');
+        // Rediriger vers la page de connexion
+        // Note: Les mots de passe sont supprimés. Le compte Supabase peut nécessiter suppression manuelle
+        return res.redirect('/index.html?message=mots_de_passe_supprimes');
 
     } catch (error) {
         console.error('Error in confirm-delete:', error);

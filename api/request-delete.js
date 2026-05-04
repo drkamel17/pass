@@ -31,13 +31,17 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { user_id, password } = req.body;
+        const { user_id, email, password } = req.body;
+        
+        console.log('Request data:', { user_id, email: !!email, hasPassword: !!password });
 
-        if (!user_id || !password) {
+        if (!user_id || !email || !password) {
+            console.log('Missing parameters');
             return res.status(400).json({ error: 'Paramètres manquants' });
         }
 
-        // 1. Vérifier le mot de passe via Supabase Auth
+        // Vérifier le mot de passe via Supabase Auth (sans vérifier user_id matching)
+        console.log('Verifying password for email:', email);
         const authResponse = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
             method: 'POST',
             headers: {
@@ -45,7 +49,7 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                email: req.body.email,
+                email: email,
                 password: password
             })
         });
@@ -53,15 +57,18 @@ export default async function handler(req, res) {
         const authData = await authResponse.json();
         
         if (!authResponse.ok) {
-            console.log('Mot de passe incorrect');
+            console.log('Password verification failed:', authData);
             return res.status(401).json({ error: 'Mot de passe incorrect' });
         }
+        
+        console.log('Password verified successfully');
 
         // 2. Créer le token de suppression
         const token = generateToken();
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
         // 3. Enregistrer la demande dans la BDD
+        console.log('Inserting deletion request for user:', user_id);
         const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/deletion_requests`, {
             method: 'POST',
             headers: {
@@ -72,7 +79,7 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 user_id: user_id,
-                user_email: req.body.email,
+                user_email: email,
                 token: token,
                 status: 'pending',
                 expires_at: expiresAt
@@ -81,14 +88,18 @@ export default async function handler(req, res) {
 
         if (!insertResponse.ok) {
             const errorData = await insertResponse.text();
-            console.error('Error inserting deletion request:', errorData);
+            console.error('Error inserting deletion request:', insertResponse.status, errorData);
             return res.status(500).json({ error: 'Erreur lors de la création de la demande' });
         }
+        
+        console.log('Deletion request inserted successfully');
 
         // 4. Envoyer l'email de confirmation
         const baseUrl = 'https://mespass.vercel.app';
         const confirmUrl = `${baseUrl}/api/confirm-delete?token=${token}`;
         const cancelUrl = `${baseUrl}/api/cancel-delete?token=${token}`;
+        
+        console.log('Sending confirmation email to:', email);
 
         const emailResponse = await fetch('https://api.resend.com/emails', {
             method: 'POST',

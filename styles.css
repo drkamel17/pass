@@ -989,3 +989,68 @@ body {
 .modal .btn-primary svg {
     margin-right: 8px;
 }
+
+/* Delete Account Button */
+.btn-danger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    margin-top: 20px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+}
+
+.btn-danger svg {
+    flex-shrink: 0;
+}
+
+/* Delete Account Modal */
+.delete-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+}
+
+.delete-warning svg {
+    flex-shrink: 0;
+    color: #dc3545;
+}
+
+.delete-warning strong {
+    display: block;
+    color: #721c24;
+    margin-bottom: 4px;
+}
+
+.delete-warning p {
+    margin: 0;
+    font-size: 13px;
+    color: #721c24;
+}
+
+.modal .btn-danger svg {
+    margin-right: 8px;
+}

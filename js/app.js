@@ -398,4 +398,78 @@ window.copyPassword = copyPassword;
 window.deletePassword = deletePassword;
 window.initDashboard = initDashboard;
 
+// Delete Account Functions
+function openDeleteAccountModal() {
+    const modal = document.getElementById('deleteAccountModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.getElementById('deletePassword').value = '';
+        document.getElementById('deleteError').classList.add('hidden');
+    }
+}
+
+function closeDeleteAccountModal() {
+    const modal = document.getElementById('deleteAccountModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.getElementById('deletePassword').value = '';
+        document.getElementById('deleteError').classList.add('hidden');
+    }
+}
+
+async function requestAccountDeletion() {
+    const password = document.getElementById('deletePassword').value;
+    const errorDiv = document.getElementById('deleteError');
+    const userId = localStorage.getItem('user_id');
+    const email = localStorage.getItem('email');
+    
+    if (!password) {
+        errorDiv.textContent = 'Veuillez entrer votre mot de passe';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+    
+    if (!userId || !email) {
+        errorDiv.textContent = 'Erreur: session expirée';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+    
+    try {
+        errorDiv.classList.add('hidden');
+        
+        const response = await fetch('/api/request-delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                email: email,
+                password: password
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            closeDeleteAccountModal();
+            showToast('✓ Email de confirmation envoyé à votre adresse email', 'success');
+        } else {
+            errorDiv.textContent = result.error || 'Erreur lors de la demande';
+            errorDiv.classList.remove('hidden');
+        }
+        
+    } catch (error) {
+        console.error('Delete account error:', error);
+        errorDiv.textContent = 'Erreur de connexion';
+        errorDiv.classList.remove('hidden');
+    }
+}
+
+// Make delete account functions globally available
+window.openDeleteAccountModal = openDeleteAccountModal;
+window.closeDeleteAccountModal = closeDeleteAccountModal;
+window.requestAccountDeletion = requestAccountDeletion;
+
 console.log('App.js loaded successfully');

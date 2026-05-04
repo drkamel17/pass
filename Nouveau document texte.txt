@@ -1,0 +1,62 @@
+ Vérification par appareil (recommandé)
+Créer un "empreinte" de l'appareil (browser + langue + timezone + screen)
+Stocker les appareils reconnus
+Demander confirmation si nouvel appareil
+Parfait ! Je vais créer un plan pour cette fonctionnalité. Laisse-moi d'abord explorer le code existant.
+
+$ ls -la "C:\Users\HP\Desktop\mypasse\web-static\js"
+
+total 40
+drwxr-xr-x 1 HP 197121     0 Apr 30 02:15 .
+drwxr-xr-x 1 HP 197121     0 Apr 30 17:08 ..
+-rw-r--r-- 1 HP 197121 13219 May  3 11:41 app.js
+-rw-r--r-- 1 HP 197121  6960 Apr 30 17:29 auth.js
+-rw-r--r-- 1 HP 197121  3143 Apr 30 02:15 crypto.js
+-rw-r--r-- 1 HP 197121  6814 May  3 11:44 supabase.js
+Parfait ! Voici le plan détaillé pour la vérification par appareil :
+
+Plan : Vérification par appareil
+1. Base de données
+Créer une table trusted_devices dans Supabase :
+
+id (UUID, clé primaire)
+user_id (UUID, référence utilisateur)
+device_fingerprint (texte, empreinte de l'appareil)
+device_name (texte, nom affiché ex: "Chrome - Windows")
+created_at (timestamp)
+is_verified (booléen, false si en attente de confirmation)
+last_used (timestamp)
+2. Empreinte de l'appareil
+Créer une fonction JS qui génère une empreinte avec :
+
+User agent (navigateur + OS)
+Langue du navigateur
+Timezone
+Résolution écran
+Couleur écran
+Platforme
+→ Hash SHA-256 de ces données
+
+3. Flux de connexion modifié
+1. Utilisateur se connecte
+2. Générer empreinte appareil
+3. Chercher empreinte dans trusted_devices
+4. Si existant + vérifié → connexion OK
+5. Si nouveau → créer enregistrement "non vérifié"
+   → Envoyer email de confirmation
+   → Bloquer accès ou connecter avec restrictions
+6. Si vérification par email确认 → mettre is_verified = true
+4. Page de confirmation
+Créer verify-device.html avec lien de confirmation envoyé par email.
+
+5. Email de notification
+Quand nouvel appareil détecté → email à l'utilisateur :
+
+"Connexion depuis un nouvel appareil : Chrome sur Windows. Si c'est vous, cliquez pour confirmer."
+
+Questions
+Options de comportement :
+a) Bloquer immédiatement l'accès jusqu'à confirmation (plus sécurisé)
+b) Permettre l'accès mais avec restrictions (ex: pas de voir les mots de passe)
+Expiration : Après combien de temps sans utilisation supprimer un appareil de la liste de confiance ? (30 jours ? 90 jours ?)
+Limite : Nombre max d'appareils autorisés par utilisateur ? (5 ? illimité ?)

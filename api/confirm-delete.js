@@ -2,6 +2,8 @@
 
 const SUPABASE_URL = 'https://jkianwwvbseovjyzocdt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpraWFud3d2YnNlb3ZqeXpvY2R0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTE0MzQsImV4cCI6MjA5MzAyNzQzNH0.oWeAP61hMJjE7aZ17NOW7Txl1T9dQOmiSljLZv8CYmE';
+// Service role key pour supprimer les utilisateurs (admin)
+const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpraWFud3d2YnNlb3ZqeXpvY2R0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzQ1MTQzNCwiZXhwIjoyMDkzMDI3NDM0fQ.XBJNxDbeJkVOBF1GzWjYjZfL3iKXJGKZ5L5TGKzK2yE';
 
 export default async function handler(req, res) {
     console.log('API: confirm-delete called');
@@ -85,22 +87,23 @@ export default async function handler(req, res) {
             }
         );
 
-        // 4. Supprimer l'utilisateur de Supabase Auth
-        // Note: Pour supprimer un utilisateur, on a besoin du service role key
-        // Voici la méthode via API Admin
+        // 4. Supprimer l'utilisateur de Supabase Auth (avec service role key)
+        console.log('Tentative de suppression de l\'utilisateur avec ID:', userId);
+        
         const deleteUserResponse = await fetch(
             `${SUPABASE_URL}/auth/v1/admin/users/${userId}`,
             {
                 method: 'DELETE',
                 headers: {
-                    'apikey': SUPABASE_KEY,
-                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'apikey': SUPABASE_SERVICE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
                     'Content-Type': 'application/json'
                 }
             }
         );
 
-        console.log('Utilisateur supprimé:', deleteUserResponse.ok || deleteUserResponse.status);
+        const deleteUserResult = await deleteUserResponse.text();
+        console.log('Utilisateur supprimé:', deleteUserResponse.status, deleteUserResult);
 
         // Rediriger vers la page de connexion avec message de succès
         return res.redirect('/index.html?message=compte_supprime');

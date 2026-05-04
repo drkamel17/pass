@@ -75,6 +75,11 @@ export default async function handler(req, res) {
 
 console.log('Mots de passe supprimés:', deletePasswordsResponse.ok);
 
+        if (!deletePasswordsResponse.ok) {
+            console.error('Failed to delete passwords:', await deletePasswordsResponse.text());
+            return res.redirect('/dashboard.html?error=echec_suppression_mots_passe');
+        }
+
         // 3. Supprimer les demandes de suppression
         await fetch(
             `${SUPABASE_URL}/rest/v1/deletion_requests?user_id=eq.${userId}`,
@@ -107,6 +112,7 @@ console.log('Mots de passe supprimés:', deletePasswordsResponse.ok);
 
         // Rediriger vers la page de connexion
         // Note: Les mots de passe sont supprimés. Le compte Supabase peut nécessiter suppression manuelle
+        console.log('Suppression terminée avec succès');
         return res.redirect('/index.html?message=mots_de_passe_supprimes');
 
     } catch (error) {

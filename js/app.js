@@ -596,7 +596,18 @@ async function confirmDeleteAccount(token) {
         
         // Maintenant supprimer le compte
         const response = await fetch('/api/confirm-delete?token=' + token);
-        if (response.ok || response.redirected) {
+        
+        // Check if redirected to success (mots_de_passe_supprimes) or error
+        if (response.redirected) {
+            const redirectUrl = response.url;
+            if (redirectUrl.includes('mots_de_passe_supprimes') || redirectUrl.includes('compte_supprime')) {
+                localStorage.clear();
+                window.location.href = '/index.html?message=compte_supprime';
+            } else {
+                // Redirected to error page
+                window.location.href = redirectUrl;
+            }
+        } else if (response.ok) {
             localStorage.clear();
             window.location.href = '/index.html?message=compte_supprime';
         } else {

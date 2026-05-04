@@ -1,6 +1,6 @@
 // API Vercel pour exporter les mots de passe par email via Resend
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_5EFrQ1Fx_8NoJxiKWk3oxN7a4VMnGqZKh';
 const SUPABASE_URL = 'https://jkianwwvbseovjyzocdt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpraWFud3d2YnNlb3ZqeXpvY2R0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTE0MzQsImV4cCI6MjA5MzAyNzQzNH0.oWeAP61hMJjE7aZ17NOW7Txl1T9dQOmiSljLZv8CYmE';
 

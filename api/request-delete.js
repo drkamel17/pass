@@ -1,6 +1,6 @@
 // API: Demander la suppression de compte
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_5EFrQ1Fx_8NoJxiKWk3oxN7a4VMnGqZKh';
 const SUPABASE_URL = 'https://jkianwwvbseovjyzocdt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpraWFud3d2YnNlb3ZqeXpvY2R0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0NTE0MzQsImV4cCI6MjA5MzAyNzQzNH0.oWeAP61hMJjE7aZ17NOW7Txl1T9dQOmiSljLZv8CYmE';
 
@@ -18,6 +18,7 @@ function generateToken(length = 64) {
 
 export default async function handler(req, res) {
     console.log('API: request-delete called');
+    console.log('RESEND_API_KEY configured:', !!RESEND_API_KEY);
     
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Méthode non autorisée' });
@@ -25,7 +26,8 @@ export default async function handler(req, res) {
 
     // Vérifier si la clé API Resend est configurée
     if (!RESEND_API_KEY) {
-        return res.status(500).json({ error: 'Configuration email manquante' });
+        console.error('RESEND_API_KEY not set in environment');
+        return res.status(500).json({ error: 'Configuration email manquante. Veuillez configurer RESEND_API_KEY dans Vercel.' });
     }
 
     try {

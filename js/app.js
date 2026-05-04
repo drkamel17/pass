@@ -487,6 +487,22 @@ function showDeleteConfirmation(token) {
                         <p style="margin-top: 8px;">Cette action est irréversible. Tous vos mots de passe seront supprimés.</p>
                     </div>
                 </div>
+                <div style="margin-bottom: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="downloadBeforeDelete" style="width: 18px; height: 18px;">
+                        <span>Télécharger mes mots de passe avant suppression</span>
+                    </label>
+                </div>
+                <div class="format-option" style="margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-left: 28px;">
+                        <input type="radio" name="deleteFormat" value="txt" checked>
+                        <span>Format TXT</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-left: 28px;">
+                        <input type="radio" name="deleteFormat" value="csv">
+                        <span>Format CSV</span>
+                    </label>
+                </div>
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="cancelDeleteProcess()">Annuler</button>
                     <button type="button" class="btn-danger" onclick="confirmDeleteAccount('${token}')">
@@ -503,9 +519,76 @@ function showDeleteConfirmation(token) {
 
 async function confirmDeleteAccount(token) {
     try {
+        // Vérifier si l'utilisateur veut télécharger avant suppression
+        const downloadCheckbox = document.getElementById('downloadBeforeDelete');
+        if (downloadCheckbox && downloadCheckbox.checked) {
+            // Récupérer le format selected
+            const formatRadio = document.querySelector('input[name="deleteFormat"]:checked');
+            const format = formatRadio ? formatRadio.value : 'txt';
+            
+            showToast('Génération du fichier...', 'info');
+            
+            // Préparer les mots de passe pour export
+            const masterKey = localStorage.getItem('masterKey');
+            
+            if (!masterKey) {
+                showToast('Clé maître manquante. Téléchargement annulé.', 'error');
+                return;
+            }
+            
+            // Déchiffrer tous les mots de passe
+            const decryptedPasswords = [];
+            
+            for (const p of passwordsList) {
+                try {
+                    const decrypted = await decryptData(p.encrypted_password, masterKey);
+                    decryptedPasswords.push({
+                        site_name: p.site_name,
+                        site_url: p.site_url,
+                        username: p.username,
+                        decrypted_password: decrypted || ''
+                    });
+                } catch (err) {
+                    decryptedPasswords.push({
+                        site_name: p.site_name,
+                        site_url: p.site_url,
+                        username: p.username,
+                        decrypted_password: '[Erreur]'
+                    });
+                }
+            }
+            
+            // Générer le contenu
+            let content = '';
+            if (format === 'txt') {
+                content = decryptedPasswords.map(p => {
+                    return `Site: ${p.site_name || 'N/A'}\nURL: ${p.site_url || ''}\nEmail: ${p.username || ''}\nMot de passe: ${p.decrypted_password}\n`;
+                }).join('\n');
+            } else if (format === 'csv') {
+                const header = 'Site,URL,Email,Mot de passe\n';
+                const rows = decryptedPasswords.map(p => {
+                    return `"${(p.site_name || '').replace(/"/g, '""')}","${(p.site_url || '').replace(/"/g, '""')}","${(p.username || '').replace(/"/g, '""')}","${(p.decrypted_password || '').replace(/"/g, '""')}"`;
+                }).join('\n');
+                content = header + rows;
+            }
+            
+            // Télécharger le fichier
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mots-de-passe-sauvegarde.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('✓ Fichier téléchargé ! Suppression en cours...', 'success');
+        }
+        
+        // Maintenant supprimer le compte
         const response = await fetch('/api/confirm-delete?token=' + token);
         if (response.ok || response.redirected) {
-            // Déconnexion et redirection
             localStorage.clear();
             window.location.href = '/index.html?message=compte_supprime';
         } else {
@@ -533,5 +616,10 @@ window.requestAccountDeletion = requestAccountDeletion;
 window.showDeleteConfirmation = showDeleteConfirmation;
 window.confirmDeleteAccount = confirmDeleteAccount;
 window.cancelDeleteProcess = cancelDeleteProcess;
+
+// Make decryptData available for delete confirmation
+if (typeof decryptData === 'function') {
+    window.decryptData = decryptData;
+}
 
 console.log('App.js loaded successfully');

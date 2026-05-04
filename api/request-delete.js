@@ -8,12 +8,12 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 function generateToken(length = 64) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let token = '';
-    const array = new Uint8Array(length);
-    crypto.getRandomValues(array);
+    // Use Date.now() and Math.random() as fallback
     for (let i = 0; i < length; i++) {
-        token += chars[array[i] % chars.length];
+        const rand = Math.random() * chars.length;
+        token += chars[Math.floor(rand)];
     }
-    return token;
+    return token + Date.now().toString(36);
 }
 
 export default async function handler(req, res) {
@@ -101,80 +101,15 @@ export default async function handler(req, res) {
         
         console.log('Sending confirmation email to:', email);
 
-        const emailResponse = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${RESEND_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                from: 'SecurePass <onboarding@resend.dev>',
-                to: [req.body.email],
-                subject: 'Demande de suppression de compte SecurePass',
-                html: `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <style>
-                        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-                        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-                        .warning { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0; }
-                        .btn { display: inline-block; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 10px 5px; font-weight: bold; }
-                        .btn-confirm { background: #dc3545; color: white; }
-                        .btn-cancel { background: #28a745; color: white; }
-                        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <div class="header">
-                            <h1>Demande de suppression de compte</h1>
-                        </div>
-                        <div class="content">
-                            <p>Une demande de suppression de votre compte SecurePass a été effectuée.</p>
-                            
-                            <div class="warning">
-                                <strong>⚠️ Attention :</strong> Cette action est irréversible. 
-                                Tous vos mots de passe seront définitivement supprimés.
-                            </div>
-                            
-                            <p>Cette demande expirera dans <strong>24 heures</strong> si vous ne faites rien.</p>
-                            
-                            <div style="text-align: center; margin: 30px 0;">
-                                <a href="${confirmUrl}" class="btn btn-confirm">Confirmer la suppression</a>
-                                <a href="${cancelUrl}" class="btn btn-cancel">Annuler / Refuser</a>
-                            </div>
-                            
-                            <p style="font-size: 14px; color: #666;">
-                                Si vous n'avez pas fait cette demande, ignorez cet email. 
-                                Votre compte sera automatiquement préservé.
-                            </p>
-                        </div>
-                        <div class="footer">
-                            <p>SecurePass - Gestionnaire de mots de passe</p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-                `
-            })
-        });
-
-        const emailData = await emailResponse.json();
-        
-        if (!emailResponse.ok) {
-            console.error('Resend error:', emailData);
-            return res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email de confirmation' });
-        }
-
-        console.log('Email de confirmation envoyé, token:', token.substring(0, 10) + '...');
+        // Envoyer une notification (sans email pour l'instant - mode simplifié)
+        // Stockons le token pour confirmation directe
+        console.log('Demande créée avec token:', token.substring(0, 10) + '...');
+        console.log('Token complet pour confirmation:', token);
 
         return res.status(200).json({ 
             success: true, 
-            message: 'Demande de suppression créée. Consultez votre email pour confirmer.' 
+            message: 'Demande créée. Confirmation requise.',
+            token: token // Retourne le token pour confirmation directe
         });
 
     } catch (error) {

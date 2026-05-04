@@ -454,7 +454,8 @@ async function requestAccountDeletion() {
         
         if (result.success) {
             closeDeleteAccountModal();
-            showToast('✓ Email de confirmation envoyé à votre adresse email', 'success');
+            // Afficher la confirmation directement avec le token
+            showDeleteConfirmation(result.token);
         } else {
             errorDiv.textContent = result.error || 'Erreur lors de la demande';
             errorDiv.classList.remove('hidden');
@@ -467,9 +468,70 @@ async function requestAccountDeletion() {
     }
 }
 
+function showDeleteConfirmation(token) {
+    // Créer un modal de confirmation inline
+    const confirmHtml = `
+        <div class="modal" id="confirmDeleteModal" style="display: flex;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Confirmer la suppression</h3>
+                </div>
+                <div class="delete-warning" style="margin-bottom: 20px;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <div>
+                        <strong>Êtes-vous sûr de vouloir supprimer votre compte ?</strong>
+                        <p style="margin-top: 8px;">Cette action est irréversible. Tous vos mots de passe seront supprimés.</p>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="cancelDeleteProcess()">Annuler</button>
+                    <button type="button" class="btn-danger" onclick="confirmDeleteAccount('${token}')">
+                        Confirmer la suppression
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Ajouter le modal à la page
+    document.body.insertAdjacentHTML('beforeend', confirmHtml);
+}
+
+async function confirmDeleteAccount(token) {
+    try {
+        const response = await fetch('/api/confirm-delete?token=' + token);
+        if (response.ok || response.redirected) {
+            // Déconnexion et redirection
+            localStorage.clear();
+            window.location.href = '/index.html?message=compte_supprime';
+        } else {
+            showToast('Erreur lors de la suppression', 'error');
+            cancelDeleteProcess();
+        }
+    } catch (error) {
+        console.error('Confirm delete error:', error);
+        showToast('Erreur de connexion', 'error');
+        cancelDeleteProcess();
+    }
+}
+
+function cancelDeleteProcess() {
+    const modal = document.getElementById('confirmDeleteModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
 // Make delete account functions globally available
 window.openDeleteAccountModal = openDeleteAccountModal;
 window.closeDeleteAccountModal = closeDeleteAccountModal;
 window.requestAccountDeletion = requestAccountDeletion;
+window.showDeleteConfirmation = showDeleteConfirmation;
+window.confirmDeleteAccount = confirmDeleteAccount;
+window.cancelDeleteProcess = cancelDeleteProcess;
 
 console.log('App.js loaded successfully');

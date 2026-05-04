@@ -146,6 +146,37 @@ body {
     background: #e9ecef;
 }
 
+/* Delete account button at bottom */
+.delete-account-bottom {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+}
+
+.btn-danger-full {
+    width: 100%;
+    max-width: 300px;
+    padding: 14px 20px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-danger-full:hover {
+    background: #c82333;
+    transform: scale(1.02);
+}
+
 /* Links */
 .auth-switch {
     text-align: center;
